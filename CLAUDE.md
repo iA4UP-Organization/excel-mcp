@@ -3,12 +3,18 @@
 > Fork sécurisé du serveur MCP Excel pour manipulation locale de fichiers .xlsx
 > Sans télémétrie, sans cloud, 100% privé
 
+## ⚠️ NOTE IMPORTANTE POUR CLAUDE
+> Ce fichier `/CLAUDE.md` est le **NÔTRE** (iA4UP).
+> Le dossier `/.claude/` qui existe encore contient des résidus de l'auteur original (mort-lab) — des commands/agents/skills pour Claude Code. Ce dossier n'a RIEN à voir avec ce fichier. Il doit être supprimé (nettoyage cosmétique en attente, voir section "Nettoyage restant").
+
+---
+
 ## 📋 Origine du Projet
 
-**Source** : [mort-lab/excel-mcp](https://github.com/mort-lab/excel-mcp)  
-**Fork** : [iA4UP-Organization/excel-mcp](https://github.com/iA4UP-Organization/excel-mcp)  
-**Licence** : MIT  
-**Analyse effectuée** : 04/02/2025  
+**Source** : [mort-lab/excel-mcp](https://github.com/mort-lab/excel-mcp)
+**Fork** : [iA4UP-Organization/excel-mcp](https://github.com/iA4UP-Organization/excel-mcp)
+**Licence** : MIT
+**Analyse effectuée** : 04/02/2025
 **Auteur original** : Martin Irurozki
 
 ### Ce qu'on garde ✅
@@ -20,14 +26,19 @@
 - 20 outils : workbook, sheets, cells, formatting
 - Tests unitaires existants
 
-### Ce qu'on rejette ❌ (SUPPRIMÉ)
+### Ce qu'on a supprimé ❌
 
-- ~~`server_smithery.py`~~ → supprimé (mode cloud)
+- ~~`server_smithery.py`~~ → supprimé (mode cloud qui envoyait les fichiers sur leurs serveurs)
 - ~~Dépendance `smithery>=0.4.2`~~ → retirée de pyproject.toml
 - ~~`smithery.yaml`~~ → supprimé
 - ~~`.smithery/`~~ → supprimé
+- ~~`CLAUDE_SETUP.md`~~ → doc en espagnol de l'auteur (chemins vers son PC perso)
+- ~~`PRD.md`~~ → product requirements de l'auteur
+- ~~`SUMMARY.md`~~ → résumé de l'auteur
+- ~~`TOOLS.md`~~ → déjà documenté dans ce CLAUDE.md
+- ~~`verify_installation.py`~~ → script de l'auteur
 
-### Ce qu'on a ajouté 🛡️ (FAIT)
+### Ce qu'on a ajouté 🛡️
 
 - `config.py` : Sandboxing des répertoires (ALLOWED_PATHS)
 - `utils/sandbox.py` : Validation renforcée anti path-traversal
@@ -35,12 +46,24 @@
 - `validators.py` réécrit : Branche vers sandbox, formules dangereuses étendues (WEBSERVICE, FILTERXML)
 - `pyproject.toml` : Renommé "excel-mcp-server-secure", smithery retiré
 
+### 🧹 Nettoyage restant (cosmétique, pas de risque sécurité)
+
+Le dossier `.claude/` contient encore des fichiers markdown de l'auteur original (commands, agents, skills pour Claude Code). Ils ne sont PAS exécutables et ne posent aucun risque. Pour les supprimer proprement :
+
+```bash
+# Cloner le repo localement puis :
+git rm -r .claude/
+git commit -m "chore: supprimer dossier .claude/ résiduel de l'auteur original"
+git push origin main
+```
+
 ---
 
 ## 🏗️ Architecture Actuelle
 
 ```
 iA4UP-Organization/excel-mcp (GitHub)
+├── .claude/                   # ⚠️ RÉSIDU auteur original - À SUPPRIMER
 ├── src/
 │   └── excel_mcp_server/
 │       ├── __init__.py
@@ -60,8 +83,8 @@ iA4UP-Organization/excel-mcp (GitHub)
 │           └── sandbox.py     # ✅ Sandboxing des chemins
 ├── tests/
 ├── pyproject.toml             # ✅ Sans Smithery
-├── CLAUDE.md                  # Ce fichier
-└── README.md
+├── CLAUDE.md                  # ✅ CE FICHIER (iA4UP)
+└── README.md                  # À réécrire (encore celui de mort-lab)
 ```
 
 ---
@@ -69,10 +92,6 @@ iA4UP-Organization/excel-mcp (GitHub)
 ## 🔧 Scénarios d'Utilisation
 
 ### 1. Claude Desktop (Local - Recommandé pour démarrer)
-
-**Fichier config** :
-- MacOS : `~/Library/Application Support/Claude/claude_desktop_config.json`
-- Windows : `%APPDATA%/Claude/claude_desktop_config.json`
 
 ```json
 {
@@ -108,7 +127,7 @@ services:
       - n8n-network
 ```
 
-### 3. Claude.ai via Tunnel Sécurisé (Avancé)
+### 3. Claude.ai via Tunnel Sécurisé
 
 ```bash
 cloudflared tunnel --url http://localhost:3100
@@ -116,7 +135,7 @@ cloudflared tunnel --url http://localhost:3100
 
 ---
 
-## 📦 Dépendances (version sécurisée)
+## 📦 Dépendances
 
 ```toml
 dependencies = [
@@ -132,110 +151,44 @@ dependencies = [
 
 ## 🛠️ Outils Disponibles (20 tools)
 
-### Workbook Operations (3)
-| Tool | Description | Paramètres |
-|------|-------------|------------|
-| `create_workbook` | Créer un nouveau .xlsx | `file_path` |
-| `get_workbook_info` | Métadonnées du fichier | `file_path` |
-| `list_sheets` | Lister les feuilles | `file_path` |
+### Workbook (3) | Sheet (4) | Cell (5) | Formatting (5)
 
-### Sheet Operations (4)
-| Tool | Description | Paramètres |
-|------|-------------|------------|
-| `create_sheet` | Créer une feuille | `workbook_path`, `sheet_name`, `index?` |
-| `delete_sheet` | Supprimer une feuille | `workbook_path`, `sheet_name` |
-| `rename_sheet` | Renommer une feuille | `workbook_path`, `old_name`, `new_name` |
-| `copy_sheet` | Copier une feuille | `workbook_path`, `source_sheet`, `new_name` |
-
-### Cell Operations (5)
-| Tool | Description | Paramètres |
-|------|-------------|------------|
-| `write_cell` | Écrire dans une cellule | `workbook_path`, `sheet_name`, `cell`, `value` |
-| `read_cell` | Lire une cellule | `workbook_path`, `sheet_name`, `cell` |
-| `write_range` | Écrire une plage | `workbook_path`, `sheet_name`, `start_cell`, `data[][]` |
-| `read_range` | Lire une plage | `workbook_path`, `sheet_name`, `range_ref` |
-| `write_formula` | Écrire une formule | `workbook_path`, `sheet_name`, `cell`, `formula` |
-
-### Formatting Operations (5)
-| Tool | Description | Paramètres |
-|------|-------------|------------|
-| `format_font` | Police | `workbook_path`, `sheet_name`, `range_ref`, options... |
-| `format_fill` | Couleur de fond | `workbook_path`, `sheet_name`, `range_ref`, `color` |
-| `format_border` | Bordures | `workbook_path`, `sheet_name`, `range_ref`, `style`, `sides[]` |
-| `format_alignment` | Alignement | `workbook_path`, `sheet_name`, `range_ref`, `horizontal`, `vertical` |
-| `format_number` | Format nombre/date | `workbook_path`, `sheet_name`, `range_ref`, `format_string` |
+Voir la documentation complète des paramètres dans `src/excel_mcp_server/models.py`.
 
 ---
 
-## 🔒 Sécurité Implémentée
+## 🔒 Sécurité
 
-### 1. Sandboxing (config.py)
-- Variable `ALLOWED_PATHS` (env) → liste de répertoires autorisés
-- Si non défini → mode permissif avec warning
-- Validation au démarrage (chemins existants uniquement)
-
-### 2. Anti Path-Traversal (utils/sandbox.py)
-- Blocage `../` et `..\`
-- Extension `.xlsx` obligatoire
-- Vérification liens symboliques sortants
-- Exception `SecurityError` dédiée
-
-### 3. Formules Dangereuses (validators.py)
-- CALL, REGISTER, EXEC (existant)
-- WEBSERVICE, FILTERXML (ajouté)
-
-### 4. Zéro Réseau
-- Aucun import réseau (requests, httpx, aiohttp, urllib, socket)
-- Uniquement openpyxl + pydantic + fastmcp
+1. **Sandboxing** (config.py) : ALLOWED_PATHS via env
+2. **Anti Path-Traversal** (sandbox.py) : blocage `../`, extension `.xlsx` obligatoire, liens symboliques vérifiés
+3. **Formules dangereuses** (validators.py) : CALL, REGISTER, EXEC, WEBSERVICE, FILTERXML bloquées
+4. **Zéro réseau** : aucun import réseau dans tout le code
 
 ---
 
-## 📝 Checklist de Développement
+## 📝 Checklist
 
 ### Phase 1 : Setup Initial ✅ TERMINÉE
-- [x] Fork du repo original vers iA4UP-Organization
-- [x] Remplacement du CLAUDE.md par version iA4UP
-- [x] Supprimer fichiers Smithery (.smithery/, smithery.yaml, server_smithery.py)
-- [x] Créer `config.py` avec ALLOWED_PATHS
-- [x] Créer `sandbox.py` avec validation sécurisée
-- [x] Modifier `pyproject.toml` (retirer smithery)
-- [x] Nettoyer `server.py` (retirer imports smithery, renommer)
-- [x] Réécrire `validators.py` (intégration sandbox)
+- [x] Fork + CLAUDE.md iA4UP
+- [x] Suppression Smithery (server_smithery.py, smithery.yaml, .smithery/)
+- [x] Suppression docs auteur (CLAUDE_SETUP.md, PRD.md, SUMMARY.md, TOOLS.md, verify_installation.py)
+- [x] Ajout config.py + sandbox.py
+- [x] Nettoyage server.py + validators.py + pyproject.toml
+
+### Phase 1b : Nettoyage cosmétique ⏳ EN ATTENTE
+- [ ] Supprimer dossier `.claude/` (résidu auteur, `git rm -r .claude/`)
+- [ ] Réécrire README.md (encore celui de mort-lab)
 
 ### Phase 2 : Tests ⏳ À FAIRE
 - [ ] Installer en local avec `pip install -e .`
 - [ ] Tester avec Claude Desktop
 - [ ] Valider les 20 outils
-- [ ] Tester les cas d'erreur (path traversal, extension, etc.)
-- [ ] Ajouter tests unitaires pour sandbox.py et config.py
+- [ ] Tests sécurité (path traversal, extension, etc.)
+- [ ] Tests unitaires sandbox.py + config.py
 
 ### Phase 3 : Dockerisation ⏳ À FAIRE
-- [ ] Créer Dockerfile
-- [ ] Créer docker-compose.yml
-- [ ] Tester sur VPS Hostinger
-- [ ] Intégrer avec N8N
-
-### Phase 4 : Documentation ⏳ À FAIRE
-- [ ] README.md complet (remplacer celui de mort-lab)
-- [ ] Exemples d'utilisation
-- [ ] Guide de déploiement
-
----
-
-## 🎯 Cas d'Usage Prioritaires (Savpro / iA4UP)
-
-1. **Analyse outil cotation BESS** : Lire formules complexes, structure des feuilles
-2. **Base prospection éolien** : Créer/modifier la base Excel, colonnes calculées
-3. **Rapports automatisés** : Génération mensuelle via N8N
-
----
-
-## 🔗 Références
-
-- [Model Context Protocol](https://modelcontextprotocol.io/)
-- [FastMCP Documentation](https://github.com/jlowin/fastmcp)
-- [openpyxl Documentation](https://openpyxl.readthedocs.io/)
-- [Repo original mort-lab/excel-mcp](https://github.com/mort-lab/excel-mcp)
+- [ ] Dockerfile + docker-compose.yml
+- [ ] Tester sur VPS Hostinger + intégrer N8N
 
 ---
 
@@ -243,15 +196,13 @@ dependencies = [
 
 | Date | Action |
 |------|--------|
-| 04/02/2025 | Analyse sécurité du repo mort-lab/excel-mcp |
+| 04/02/2025 | Analyse sécurité repo mort-lab/excel-mcp |
 | 04/02/2025 | Fork vers iA4UP-Organization/excel-mcp |
-| 04/02/2025 | Remplacement CLAUDE.md par version iA4UP |
-| 04/02/2025 | Ajout config.py (ALLOWED_PATHS) + sandbox.py (anti path-traversal) |
-| 04/02/2025 | Nettoyage server.py, validators.py, pyproject.toml |
-| 04/02/2025 | Suppression server_smithery.py, smithery.yaml, .smithery/ |
-| 04/02/2025 | **Phase 1 terminée** - Repo sécurisé, prêt pour tests |
+| 04/02/2025 | CLAUDE.md iA4UP + config.py + sandbox.py |
+| 04/02/2025 | Suppression Smithery + docs auteur original |
+| 04/02/2025 | Nettoyage partiel .claude/ (agents, skills, PRPs, settings) |
+| 04/02/2025 | **Phase 1 terminée** — reste .claude/commands/ à supprimer |
 
 ---
 
-*Projet initié le 04/02/2025 - iA4UP / Raphael Depré*
-*Organisation GitHub : iA4UP-Organization*
+*Projet iA4UP / Raphael Depré — Organisation GitHub : iA4UP-Organization*
