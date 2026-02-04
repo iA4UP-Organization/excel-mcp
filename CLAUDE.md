@@ -6,6 +6,7 @@
 ## 📋 Origine du Projet
 
 **Source** : [mort-lab/excel-mcp](https://github.com/mort-lab/excel-mcp)  
+**Fork** : [iA4UP-Organization/excel-mcp](https://github.com/iA4UP-Organization/excel-mcp)  
 **Licence** : MIT  
 **Analyse effectuée** : 04/02/2025  
 **Auteur original** : Martin Irurozki
@@ -19,34 +20,34 @@
 - 20 outils : workbook, sheets, cells, formatting
 - Tests unitaires existants
 
-### Ce qu'on rejette ❌
+### Ce qu'on rejette ❌ (SUPPRIMÉ)
 
-- `server_smithery.py` (mode cloud - envoie les fichiers sur leurs serveurs)
-- Dépendance `smithery>=0.4.2` (télémétrie potentielle)
-- Configuration Smithery dans pyproject.toml
-- Toute référence à smithery.ai
+- ~~`server_smithery.py`~~ → supprimé (mode cloud)
+- ~~Dépendance `smithery>=0.4.2`~~ → retirée de pyproject.toml
+- ~~`smithery.yaml`~~ → supprimé
+- ~~`.smithery/`~~ → supprimé
 
-### Ce qu'on ajoute 🛡️
+### Ce qu'on a ajouté 🛡️ (FAIT)
 
-- Sandboxing des répertoires (ALLOWED_PATHS)
-- Validation renforcée anti path-traversal
-- Mode 100% offline garanti
-- Configuration pour VPS Hostinger / N8N
-- Support Docker isolé
+- `config.py` : Sandboxing des répertoires (ALLOWED_PATHS)
+- `utils/sandbox.py` : Validation renforcée anti path-traversal
+- `server.py` nettoyé : Mode 100% offline, nom "iA4UP Secure"
+- `validators.py` réécrit : Branche vers sandbox, formules dangereuses étendues (WEBSERVICE, FILTERXML)
+- `pyproject.toml` : Renommé "excel-mcp-server-secure", smithery retiré
 
 ---
 
-## 🏗️ Architecture Cible
+## 🏗️ Architecture Actuelle
 
 ```
-excel-mcp-secure/
+iA4UP-Organization/excel-mcp (GitHub)
 ├── src/
 │   └── excel_mcp_server/
 │       ├── __init__.py
 │       ├── __main__.py
-│       ├── server.py          # Serveur MCP principal (sans Smithery)
+│       ├── server.py          # Serveur MCP principal (SANS Smithery)
 │       ├── models.py          # Modèles Pydantic
-│       ├── config.py          # 🆕 Configuration sécurisée
+│       ├── config.py          # ✅ Configuration sécurisée (ALLOWED_PATHS)
 │       ├── operations/
 │       │   ├── __init__.py
 │       │   ├── workbook.py
@@ -55,14 +56,12 @@ excel-mcp-secure/
 │       │   └── formatting.py
 │       └── utils/
 │           ├── __init__.py
-│           ├── validators.py
-│           └── sandbox.py     # 🆕 Sandboxing des chemins
+│           ├── validators.py  # ✅ Réécrit avec intégration sandbox
+│           └── sandbox.py     # ✅ Sandboxing des chemins
 ├── tests/
-├── pyproject.toml             # Sans Smithery
-├── Dockerfile                 # 🆕 Pour VPS/N8N
-├── docker-compose.yml         # 🆕 Stack complète
-├── README.md
-└── CLAUDE.md                  # Ce fichier
+├── pyproject.toml             # ✅ Sans Smithery
+├── CLAUDE.md                  # Ce fichier
+└── README.md
 ```
 
 ---
@@ -89,12 +88,9 @@ excel-mcp-secure/
 }
 ```
 
-**Usage** : Parler directement à Claude Desktop pour manipuler les fichiers Excel.
-
 ### 2. N8N sur VPS Hostinger (Automatisation)
 
 ```yaml
-# docker-compose.yml (à ajouter à ta stack N8N existante)
 services:
   excel-mcp:
     build: ./excel-mcp-secure
@@ -110,22 +106,12 @@ services:
       - "3100:3100"
     networks:
       - n8n-network
-
-networks:
-  n8n-network:
-    external: true
 ```
-
-**Intégration N8N** : Appeler le serveur MCP via HTTP Request node.
 
 ### 3. Claude.ai via Tunnel Sécurisé (Avancé)
 
 ```bash
-# Option A : Cloudflare Tunnel (gratuit, recommandé)
 cloudflared tunnel --url http://localhost:3100
-
-# Option B : ngrok (simple mais limité)
-ngrok http 3100
 ```
 
 ---
@@ -133,12 +119,6 @@ ngrok http 3100
 ## 📦 Dépendances (version sécurisée)
 
 ```toml
-[project]
-name = "excel-mcp-server-secure"
-version = "0.1.0"
-description = "Serveur MCP Excel sécurisé - Fork sans télémétrie"
-requires-python = ">=3.10"
-
 dependencies = [
     "mcp>=1.15.0",
     "fastmcp>=2.0.0",
@@ -146,25 +126,20 @@ dependencies = [
     "pydantic>=2.0.0",
     # PAS de smithery - supprimé volontairement
 ]
-
-[project.scripts]
-excel-mcp-server = "excel_mcp_server:main"
 ```
 
 ---
 
 ## 🛠️ Outils Disponibles (20 tools)
 
-### Workbook Operations (3 outils)
-
+### Workbook Operations (3)
 | Tool | Description | Paramètres |
 |------|-------------|------------|
-| `create_workbook` | Créer un nouveau fichier .xlsx | `file_path` |
+| `create_workbook` | Créer un nouveau .xlsx | `file_path` |
 | `get_workbook_info` | Métadonnées du fichier | `file_path` |
 | `list_sheets` | Lister les feuilles | `file_path` |
 
-### Sheet Operations (4 outils)
-
+### Sheet Operations (4)
 | Tool | Description | Paramètres |
 |------|-------------|------------|
 | `create_sheet` | Créer une feuille | `workbook_path`, `sheet_name`, `index?` |
@@ -172,8 +147,7 @@ excel-mcp-server = "excel_mcp_server:main"
 | `rename_sheet` | Renommer une feuille | `workbook_path`, `old_name`, `new_name` |
 | `copy_sheet` | Copier une feuille | `workbook_path`, `source_sheet`, `new_name` |
 
-### Cell Operations (5 outils)
-
+### Cell Operations (5)
 | Tool | Description | Paramètres |
 |------|-------------|------------|
 | `write_cell` | Écrire dans une cellule | `workbook_path`, `sheet_name`, `cell`, `value` |
@@ -182,132 +156,67 @@ excel-mcp-server = "excel_mcp_server:main"
 | `read_range` | Lire une plage | `workbook_path`, `sheet_name`, `range_ref` |
 | `write_formula` | Écrire une formule | `workbook_path`, `sheet_name`, `cell`, `formula` |
 
-### Formatting Operations (5 outils)
-
+### Formatting Operations (5)
 | Tool | Description | Paramètres |
 |------|-------------|------------|
-| `format_font` | Police (gras, italique, couleur, taille) | `workbook_path`, `sheet_name`, `range_ref`, options... |
+| `format_font` | Police | `workbook_path`, `sheet_name`, `range_ref`, options... |
 | `format_fill` | Couleur de fond | `workbook_path`, `sheet_name`, `range_ref`, `color` |
 | `format_border` | Bordures | `workbook_path`, `sheet_name`, `range_ref`, `style`, `sides[]` |
 | `format_alignment` | Alignement | `workbook_path`, `sheet_name`, `range_ref`, `horizontal`, `vertical` |
-| `format_number` | Format nombre/date/monnaie | `workbook_path`, `sheet_name`, `range_ref`, `format_string` |
+| `format_number` | Format nombre/date | `workbook_path`, `sheet_name`, `range_ref`, `format_string` |
 
 ---
 
 ## 🔒 Sécurité Implémentée
 
-### 1. Sandboxing des Chemins (NOUVEAU)
+### 1. Sandboxing (config.py)
+- Variable `ALLOWED_PATHS` (env) → liste de répertoires autorisés
+- Si non défini → mode permissif avec warning
+- Validation au démarrage (chemins existants uniquement)
 
-```python
-# config.py
-import os
-from pathlib import Path
+### 2. Anti Path-Traversal (utils/sandbox.py)
+- Blocage `../` et `..\`
+- Extension `.xlsx` obligatoire
+- Vérification liens symboliques sortants
+- Exception `SecurityError` dédiée
 
-ALLOWED_PATHS = [
-    Path(p.strip()).resolve() 
-    for p in os.environ.get("ALLOWED_PATHS", "").split(",") 
-    if p.strip()
-]
+### 3. Formules Dangereuses (validators.py)
+- CALL, REGISTER, EXEC (existant)
+- WEBSERVICE, FILTERXML (ajouté)
 
-def is_path_allowed(path: str) -> bool:
-    """Vérifie que le chemin est dans un répertoire autorisé."""
-    try:
-        resolved = Path(path).resolve()
-        return any(
-            resolved.is_relative_to(allowed)
-            for allowed in ALLOWED_PATHS
-        )
-    except (ValueError, RuntimeError):
-        return False
-```
-
-### 2. Validation Anti Path-Traversal (RENFORCÉ)
-
-```python
-# utils/sandbox.py
-from pathlib import Path
-from .config import is_path_allowed
-
-class SecurityError(Exception):
-    """Erreur de sécurité - accès non autorisé."""
-    pass
-
-def validate_secure_path(path: str, must_exist: bool = False) -> Path:
-    clean_path = Path(path).resolve()
-    
-    if ".." in str(path):
-        raise SecurityError(f"Path traversal détecté: {path}")
-    
-    if clean_path.suffix.lower() != ".xlsx":
-        raise SecurityError(f"Extension non autorisée: {clean_path.suffix}")
-    
-    if not is_path_allowed(str(clean_path)):
-        raise SecurityError(f"Chemin hors zone autorisée: {clean_path}")
-    
-    if must_exist and not clean_path.exists():
-        raise FileNotFoundError(f"Fichier non trouvé: {clean_path}")
-    
-    if clean_path.is_symlink():
-        real_path = clean_path.resolve()
-        if not is_path_allowed(str(real_path)):
-            raise SecurityError(f"Lien symbolique vers zone non autorisée: {path}")
-    
-    return clean_path
-```
-
-### 3. Formules Dangereuses Bloquées
-
-```python
-DANGEROUS_FUNCTIONS = [
-    "CALL",           # Appel DLL externe
-    "REGISTER",       # Enregistrement fonction
-    "EXEC",           # Exécution commande
-    "WEBSERVICE",     # Appel HTTP (fuite données)
-    "FILTERXML",      # Parsing XML externe
-    "HYPERLINK",      # Peut exécuter du code (optionnel)
-]
-```
-
-### 4. Aucune Connexion Réseau
-
-```python
-# Le serveur n'importe AUCUNE bibliothèque réseau
-# Pas de: requests, httpx, aiohttp, urllib, socket
-# Uniquement: openpyxl (fichiers locaux), pydantic (validation), fastmcp (protocole)
-```
+### 4. Zéro Réseau
+- Aucun import réseau (requests, httpx, aiohttp, urllib, socket)
+- Uniquement openpyxl + pydantic + fastmcp
 
 ---
 
 ## 📝 Checklist de Développement
 
-### Phase 1 : Setup Initial
+### Phase 1 : Setup Initial ✅ TERMINÉE
 - [x] Fork du repo original vers iA4UP-Organization
 - [x] Remplacement du CLAUDE.md par version iA4UP
-- [ ] Supprimer fichiers Smithery (.smithery/, smithery.yaml, server_smithery.py)
-- [ ] Créer `config.py` avec ALLOWED_PATHS
-- [ ] Créer `sandbox.py` avec validation sécurisée
-- [ ] Modifier `pyproject.toml` (retirer smithery)
+- [x] Supprimer fichiers Smithery (.smithery/, smithery.yaml, server_smithery.py)
+- [x] Créer `config.py` avec ALLOWED_PATHS
+- [x] Créer `sandbox.py` avec validation sécurisée
+- [x] Modifier `pyproject.toml` (retirer smithery)
+- [x] Nettoyer `server.py` (retirer imports smithery, renommer)
+- [x] Réécrire `validators.py` (intégration sandbox)
 
-### Phase 2 : Intégration Sécurité
-- [ ] Intégrer `validate_secure_path()` dans toutes les opérations
-- [ ] Ajouter tests de sécurité (path traversal, etc.)
-- [ ] Vérifier qu'aucun appel réseau n'est possible
-- [ ] Documenter les variables d'environnement
-
-### Phase 3 : Test Local
+### Phase 2 : Tests ⏳ À FAIRE
 - [ ] Installer en local avec `pip install -e .`
 - [ ] Tester avec Claude Desktop
 - [ ] Valider les 20 outils
-- [ ] Tester les cas d'erreur (sécurité)
+- [ ] Tester les cas d'erreur (path traversal, extension, etc.)
+- [ ] Ajouter tests unitaires pour sandbox.py et config.py
 
-### Phase 4 : Dockerisation
+### Phase 3 : Dockerisation ⏳ À FAIRE
 - [ ] Créer Dockerfile
 - [ ] Créer docker-compose.yml
 - [ ] Tester sur VPS Hostinger
 - [ ] Intégrer avec N8N
 
-### Phase 5 : Documentation
-- [ ] README.md complet
+### Phase 4 : Documentation ⏳ À FAIRE
+- [ ] README.md complet (remplacer celui de mort-lab)
 - [ ] Exemples d'utilisation
 - [ ] Guide de déploiement
 
@@ -315,20 +224,9 @@ DANGEROUS_FUNCTIONS = [
 
 ## 🎯 Cas d'Usage Prioritaires (Savpro / iA4UP)
 
-### 1. Analyse de l'outil de cotation BESS
-- Lire les formules complexes
-- Comprendre la structure des feuilles
-- Extraire les paramètres clés
-
-### 2. Base de prospection éolien
-- Créer/modifier la base de données Excel
-- Ajouter des colonnes calculées
-- Formater pour export
-
-### 3. Rapports automatisés
-- Générer des rapports mensuels
-- Appliquer un formatage standardisé
-- Intégrer dans workflows N8N
+1. **Analyse outil cotation BESS** : Lire formules complexes, structure des feuilles
+2. **Base prospection éolien** : Créer/modifier la base Excel, colonnes calculées
+3. **Rapports automatisés** : Génération mensuelle via N8N
 
 ---
 
@@ -345,10 +243,13 @@ DANGEROUS_FUNCTIONS = [
 
 | Date | Action |
 |------|--------|
-| 04/02/2025 | Analyse du repo original, identification des risques sécurité |
-| 04/02/2025 | Création du CLAUDE.md version iA4UP |
+| 04/02/2025 | Analyse sécurité du repo mort-lab/excel-mcp |
 | 04/02/2025 | Fork vers iA4UP-Organization/excel-mcp |
-| 04/02/2025 | Remplacement du CLAUDE.md original par version sécurisée |
+| 04/02/2025 | Remplacement CLAUDE.md par version iA4UP |
+| 04/02/2025 | Ajout config.py (ALLOWED_PATHS) + sandbox.py (anti path-traversal) |
+| 04/02/2025 | Nettoyage server.py, validators.py, pyproject.toml |
+| 04/02/2025 | Suppression server_smithery.py, smithery.yaml, .smithery/ |
+| 04/02/2025 | **Phase 1 terminée** - Repo sécurisé, prêt pour tests |
 
 ---
 
