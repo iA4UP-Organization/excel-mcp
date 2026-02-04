@@ -1,13 +1,14 @@
 [project]
-name = "excel-mcp-server"
-version = "0.1.0"
-description = "A Model Context Protocol server for comprehensive Excel file manipulation using openpyxl"
+name = "excel-mcp-server-secure"
+version = "0.2.0"
+description = "Secure MCP server for Excel file manipulation - Fork without cloud/telemetry (iA4UP)"
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [
-    { name = "Martin Irurozki", email = "m.irurozki@gmail.com" }
+    { name = "Martin Irurozki", email = "m.irurozki@gmail.com" },
+    { name = "iA4UP", email = "info@ia4up.com" }
 ]
-keywords = ["excel", "mcp", "llm", "spreadsheet", "openpyxl", "ai", "automation"]
+keywords = ["excel", "mcp", "llm", "spreadsheet", "openpyxl", "ai", "automation", "secure", "local"]
 license = { text = "MIT" }
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -26,13 +27,11 @@ dependencies = [
     "fastmcp>=2.0.0",
     "openpyxl>=3.1.0",
     "pydantic>=2.0.0",
-    "smithery>=0.4.2",
+    # smithery removed - no cloud/telemetry in secure version
 ]
 
 [project.scripts]
 excel-mcp-server = "excel_mcp_server:main"
-dev = "smithery.cli.dev:main"
-playground = "smithery.cli.playground:main"
 
 [project.optional-dependencies]
 server = ["fastapi>=0.115.0"]
@@ -49,9 +48,6 @@ dev = [
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
-
-[tool.smithery]
-server = "excel_mcp_server.server_smithery:create_server"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/excel_mcp_server"]
